@@ -9,3 +9,40 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Colaborador {
+  id        Int        @id @default(autoincrement())
+  numero    String     @unique
+  nome      String
+  area_id   Int?
+  area      Area?      @relation(fields: [area_id], references: [id], onDelete: SetNull)
+  registros Registro[]
+}
+
+model Area {
+  id            Int           @id @default(autoincrement())
+  nome          String
+  colaboradores Colaborador[]
+}
+
+model Registro {
+  id             Int         @id @default(autoincrement())
+  data           DateTime
+  status         String
+  colaborador_id Int
+  colaborador    Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  nome     String
+  email    String @unique
+  password String
+}
+
+model Funcionario_rouparia {
+  id       Int    @id @default(autoincrement())
+  nome     String
+  email    String @unique
+  password String
+}
