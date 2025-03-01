@@ -24,7 +24,7 @@ export class ColaboradorService {
 
   async findOne(id: number) {
     const colaborador = await this.prisma.colaborador.findUnique({ where: { id }, include: { area: true, registros: true } });
-    if (!colaborador) throw new NotFoundException(`Colaborador com IDdsdsd ${id} não encontrado.`);
+    if (!colaborador) throw new NotFoundException(`Colaborador com ID ${id} não encontrado.`);
     return colaborador;
   }
 

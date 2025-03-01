@@ -2,21 +2,34 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRegistroDto } from './dto/create-registro.dto';
 import { UpdateRegistroDto } from './dto/update-registro.dto';
+import { ColaboradorService } from 'src/colaborador/colaborador.service';
 
 @Injectable()
 export class RegistroService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly colaborador: ColaboradorService
+  
+  ) {}
 
   async create(createRegistroDto: CreateRegistroDto) {
-    
+
+    const colaborador = await this.colaborador.findOne(createRegistroDto.colaborador_id);
+    const ultimoRegistro = colaborador.registros[colaborador.registros.length - 1] ?? "Nao ha";
+    // console.log("Ultimo registro cliente\n", ultimoRegistro);
+    // console.log("Registrando", createRegistroDto.status);
+    if (ultimoRegistro.status === "retirou" && createRegistroDto.status === "retirou"){
+       return ({message: "error", data: ultimoRegistro.data})
+    }else {
     const dataAtual = new Date();
 
     const registroComData = {
       ...createRegistroDto,
       data: dataAtual, 
     };
-
-    return await this.prisma.registro.create({ data: registroComData });
+    const criarRegistro =  await this.prisma.registro.create({ data: registroComData });
+    return ({message: "sucesso", data: null});
+  }
   }
   async findAll() {
     return await this.prisma.registro.findMany();
