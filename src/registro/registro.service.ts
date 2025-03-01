@@ -1,26 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRegistroDto } from './dto/create-registro.dto';
 import { UpdateRegistroDto } from './dto/update-registro.dto';
 
 @Injectable()
 export class RegistroService {
-  create(createRegistroDto: CreateRegistroDto) {
-    return 'This action adds a new registro';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createRegistroDto: CreateRegistroDto) {
+    return await this.prisma.registro.create({ data: createRegistroDto });
   }
 
-  findAll() {
-    return `This action returns all registro`;
+  async findAll() {
+    return await this.prisma.registro.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} registro`;
+  async findOne(id: number) {
+    const registro = await this.prisma.registro.findUnique({ where: { id } });
+    if (!registro) throw new NotFoundException(`Registro com ID ${id} não encontrado.`);
+    return registro;
   }
 
-  update(id: number, updateRegistroDto: UpdateRegistroDto) {
-    return `This action updates a #${id} registro`;
+  async update(id: number, updateRegistroDto: UpdateRegistroDto) {
+    await this.findOne(id); // Verifica se existe
+    return await this.prisma.registro.update({ where: { id }, data: updateRegistroDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} registro`;
+  async remove(id: number) {
+    await this.findOne(id); // Verifica se existe
+    return await this.prisma.registro.delete({ where: { id } });
   }
 }

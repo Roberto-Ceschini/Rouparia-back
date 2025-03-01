@@ -1,26 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 
 @Injectable()
 export class ColaboradorService {
-  create(createColaboradorDto: CreateColaboradorDto) {
-    return 'This action adds a new colaborador';
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(createColaboradorDto: CreateColaboradorDto) {
+    return await this.prisma.colaborador.create({ data: createColaboradorDto });
   }
 
-  findAll() {
-    return `This action returns all colaborador`;
+  async findAll() {
+    return await this.prisma.colaborador.findMany({ include: { area: true, registros: true } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} colaborador`;
+  async findOne(id: number) {
+    const colaborador = await this.prisma.colaborador.findUnique({ where: { id }, include: { area: true, registros: true } });
+    if (!colaborador) throw new NotFoundException(`Colaborador com ID ${id} não encontrado.`);
+    return colaborador;
   }
 
-  update(id: number, updateColaboradorDto: UpdateColaboradorDto) {
-    return `This action updates a #${id} colaborador`;
+  async update(id: number, updateColaboradorDto: UpdateColaboradorDto) {
+    await this.findOne(id); // Verifica se existe
+    return await this.prisma.colaborador.update({ where: { id }, data: updateColaboradorDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} colaborador`;
+  async remove(id: number) {
+    await this.findOne(id); // Verifica se existe
+    return await this.prisma.colaborador.delete({ where: { id } });
   }
 }
