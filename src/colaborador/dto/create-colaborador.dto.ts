@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString, IsInt } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsInt, IsNumber } from "class-validator";
 
 export class CreateColaboradorDto {
 
-    @ApiProperty({ example: "001", description: "Número único do colaborador" })
-    @IsString()
+    @ApiProperty({ example: 1, description: "Número único do colaborador" })
+    @IsInt()
     @IsNotEmpty()
-    numero: string;
+    numero: number;
 
     @ApiProperty({ example: "Carlos Silva", description: "Nome do colaborador" })
     @IsString()

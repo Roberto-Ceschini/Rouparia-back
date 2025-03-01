@@ -13,7 +13,8 @@ export class ColaboradorService {
 
   async create(createColaboradorDto: CreateColaboradorDto) {
     if (createColaboradorDto.area_id) await this.area.findOne(createColaboradorDto.area_id); // verifica se area passada existe
-    return await this.prisma.colaborador.create({ data: createColaboradorDto });
+    const colaborador = await this.prisma.colaborador.create({ data: createColaboradorDto });
+    return colaborador;
   }
 
   async findAll() {
@@ -26,7 +27,7 @@ export class ColaboradorService {
     return colaborador;
   }
 
-  async findByNumero (numero: string){
+  async findByNumero (numero: number){
     const colaborador = await this.prisma.colaborador.findUnique({where: {numero}});
     if (colaborador) await this.findOne(colaborador.id);
 
