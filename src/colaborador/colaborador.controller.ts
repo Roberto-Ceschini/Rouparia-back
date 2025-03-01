@@ -9,6 +9,7 @@ export class ColaboradorController {
 
   @Post()
   create(@Body() createColaboradorDto: CreateColaboradorDto) {
+    if (createColaboradorDto.area_id)
     return this.colaboradorService.create(createColaboradorDto);
   }
 
@@ -20,6 +21,11 @@ export class ColaboradorController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.colaboradorService.findOne(+id);
+  }
+
+  @Get(':numero')
+  findByNumero(@Param('numero') numero: string) {
+    return this.colaboradorService.findByNumero(numero);
   }
 
   @Patch(':id')

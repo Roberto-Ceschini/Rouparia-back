@@ -12,7 +12,7 @@ datasource db {
 
 model Colaborador {
   id        Int        @id @default(autoincrement())
-  numero    String     @unique
+  numero    Int     @unique
   nome      String
   area_id   Int?
   area      Area?      @relation(fields: [area_id], references: [id], onDelete: SetNull)
