@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 import { AreaService } from 'src/area/area.service';
+import { Colaborador } from './entities/colaborador.entity';
 
 @Injectable()
 export class ColaboradorService {
@@ -42,5 +43,11 @@ export class ColaboradorService {
   async remove(id: number) {
     await this.findOne(id); // Verifica se existe
     return await this.prisma.colaborador.delete({ where: { id } });
+  }
+
+  async removeByNumero (numero: number){
+    const colaborador = await this.findByNumero(numero);
+    if (colaborador) await this.remove(colaborador.id);
+    return `colaborador de numero ${numero} removido com sucesso!`
   }
 }

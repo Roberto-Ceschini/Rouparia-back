@@ -33,8 +33,13 @@ export class ColaboradorController {
     return this.colaboradorService.update(+id, updateColaboradorDto);
   }
 
-  @Delete(':id')
+  @Delete('id/:id')
   remove(@Param('id') id: string) {
     return this.colaboradorService.remove(+id);
+  }
+
+  @Delete('numero/:numero')
+  removeByNumero(@Param('numero') numero: string) {
+    return this.colaboradorService.removeByNumero(+numero);
   }
 }
