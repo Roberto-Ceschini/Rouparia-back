@@ -9,12 +9,11 @@ export class RegistroService {
 
   async create(createRegistroDto: CreateRegistroDto) {
     
-    // Converter para formato ISO (ou o formato que seu banco espera)
     const dataAtual = new Date();
 
     const registroComData = {
       ...createRegistroDto,
-      data: dataAtual, // Armazena já no fuso RJ
+      data: dataAtual, 
     };
 
     return await this.prisma.registro.create({ data: registroComData });
@@ -36,6 +35,14 @@ export class RegistroService {
 
   async remove(id: number) {
     await this.findOne(id); // Verifica se existe
-    return await this.prisma.registro.delete({ where: { id } });
+    const deletar = await this.prisma.registro.delete({ where: { id } });
+    return `Produto com id ${id} removido com sucesso`
   }
+
+  // Deletar todos os registros
+  async removeAll() {
+    await this.prisma.registro.deleteMany({});
+    return { message: 'Todos os registros foram excluídos com sucesso.' };
+  }
+  
 }

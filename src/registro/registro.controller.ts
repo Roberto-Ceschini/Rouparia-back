@@ -27,8 +27,13 @@ export class RegistroController {
     return this.registroService.update(+id, updateRegistroDto);
   }
 
-  @Delete(':id')
+  @Delete('id/:id')
   remove(@Param('id') id: string) {
     return this.registroService.remove(+id);
+  }
+
+  @Delete('removeAll') // Exemplo de rota que chama o método deleteAll
+  async removeAll() {
+    return this.registroService.removeAll();
   }
 }
