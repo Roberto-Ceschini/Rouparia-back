@@ -17,14 +17,15 @@ export class ColaboradorController {
     return this.colaboradorService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.colaboradorService.findOne(+id);
-  }
-
-  @Get(':numero')
+  
+  @Get('numero/:numero')
   findByNumero(@Param('numero') numero: string) {
     return this.colaboradorService.findByNumero(+numero);
+  }
+
+  @Get('id/:id')
+  findOne(@Param('id') id: string) {
+    return this.colaboradorService.findOne(+id);
   }
 
   @Patch(':id')

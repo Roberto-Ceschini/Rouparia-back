@@ -23,15 +23,16 @@ export class ColaboradorService {
 
   async findOne(id: number) {
     const colaborador = await this.prisma.colaborador.findUnique({ where: { id }, include: { area: true, registros: true } });
-    if (!colaborador) throw new NotFoundException(`Colaborador com ID ${id} não encontrado.`);
+    if (!colaborador) throw new NotFoundException(`Colaborador com IDdsdsd ${id} não encontrado.`);
     return colaborador;
   }
 
   async findByNumero (numero: number){
-    const colaborador = await this.prisma.colaborador.findUnique({where: {numero}});
-    if (colaborador) await this.findOne(colaborador.id);
-
-  }
+   // Tenta encontrar o colaborador pelo nome
+  const colaborador = await this.prisma.colaborador.findUnique({ where: { numero }, include: { area: true, registros: true } });
+  if (!colaborador) throw new NotFoundException(`Colaborador com numero ${numero} não encontrado.`);
+  return colaborador;
+}
 
   async update(id: number, updateColaboradorDto: UpdateColaboradorDto) {
     await this.findOne(id); // Verifica se existe
