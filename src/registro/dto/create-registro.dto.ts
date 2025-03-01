@@ -2,12 +2,11 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString, IsInt, IsDate } from "class-validator";
 
 export class CreateRegistroDto {
-    @ApiProperty({ example: "2025-03-01T12:00:00Z", description: "Data do registro" })
-    @IsDate()
-    @IsNotEmpty()
-    data: Date;
+    // @ApiProperty({ example: "2025-03-01T12:00:00Z", description: "Data do registro" })
+    // @IsDate()
+    // data: Date;
 
-    @ApiProperty({ example: "Ativo", description: "Status do registro" })
+    @ApiProperty({ example: "retirou", description: "Status do registro ('entregou' ou 'retirou')" })
     @IsString()
     @IsNotEmpty()
     status: string;

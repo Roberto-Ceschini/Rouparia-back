@@ -8,9 +8,17 @@ export class RegistroService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createRegistroDto: CreateRegistroDto) {
-    return await this.prisma.registro.create({ data: createRegistroDto });
-  }
+    
+    // Converter para formato ISO (ou o formato que seu banco espera)
+    const dataAtual = new Date();
 
+    const registroComData = {
+      ...createRegistroDto,
+      data: dataAtual, // Armazena já no fuso RJ
+    };
+
+    return await this.prisma.registro.create({ data: registroComData });
+  }
   async findAll() {
     return await this.prisma.registro.findMany();
   }
