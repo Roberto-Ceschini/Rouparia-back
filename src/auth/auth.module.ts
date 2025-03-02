@@ -10,7 +10,7 @@ import { AdminModule } from 'src/admin/admin.module';
     JwtModule.register({
       global: true,
       secret: process.env.SECRET,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '15d' },
     }),],
   controllers: [AuthController],
   providers: [AuthService]
