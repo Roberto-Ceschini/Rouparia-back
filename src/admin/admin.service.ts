@@ -9,7 +9,6 @@ export class AdminService {
 
   async create(createAdminDto: CreateAdminDto) {
 
-    const dataAtualizada = {...createAdminDto, roles: ["admin"]}
     return await this.prisma.admin.create({data: createAdminDto}) ;
   }
   async findAll() {
