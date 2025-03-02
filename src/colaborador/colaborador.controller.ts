@@ -19,7 +19,7 @@ export class ColaboradorController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.User)
+  @Roles(Role.Admin)
   @Get()
   findAll() {
     return this.colaboradorService.findAll();

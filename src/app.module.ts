@@ -10,13 +10,14 @@ import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { AuthGuard } from './auth/guards/auth.guard';
 
 @Module({
   imports: [ColaboradorModule, AreaModule, RegistroModule, AdminModule, FuncionarioRoupariaModule, AuthModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, {
     provide: APP_GUARD,
-    useClass: RolesGuard,
+    useClass: AuthGuard
   }, ],
 })
 export class AppModule {}
