@@ -11,9 +11,10 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { AuthGuard } from './auth/guards/auth.guard';
+import { RoleModule } from './role/role.module';
 
 @Module({
-  imports: [ColaboradorModule, AreaModule, RegistroModule, AdminModule, FuncionarioRoupariaModule, AuthModule],
+  imports: [ColaboradorModule, AreaModule, RegistroModule, AdminModule, FuncionarioRoupariaModule, AuthModule, RoleModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, {
     provide: APP_GUARD,

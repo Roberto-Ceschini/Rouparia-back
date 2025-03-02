@@ -8,6 +8,8 @@ export class AdminService {
   constructor (private readonly prisma: PrismaService){}
 
   async create(createAdminDto: CreateAdminDto) {
+
+    const dataAtualizada = {...createAdminDto, roles: ["admin"]}
     return await this.prisma.admin.create({data: createAdminDto}) ;
   }
   async findAll() {
