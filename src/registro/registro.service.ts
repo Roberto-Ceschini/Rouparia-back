@@ -16,7 +16,7 @@ export class RegistroService {
 
     const colaborador = await this.colaborador.findOne(createRegistroDto.colaborador_id);
     const ultimoRegistro = colaborador.registros[colaborador.registros.length - 1] ?? "Nao ha";
-    // console.log("Ultimo registro cliente\n", ultimoRegistro);
+     //console.log("Ultimo registro cliente\n", ultimoRegistro.data);
     // console.log("Registrando", createRegistroDto.status);
     if (ultimoRegistro.status === "retirou" && createRegistroDto.status === "retirou"){
        return ({message: "error", data: ultimoRegistro.data})
