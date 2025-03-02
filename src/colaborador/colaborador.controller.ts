@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ColaboradorService } from './colaborador.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('colaborador')
 export class ColaboradorController {
@@ -12,6 +13,7 @@ export class ColaboradorController {
     return this.colaboradorService.create(createColaboradorDto);
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.colaboradorService.findAll();

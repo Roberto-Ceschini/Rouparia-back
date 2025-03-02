@@ -14,6 +14,12 @@ export class AdminService {
     return await this.prisma.admin.findMany();
   }
 
+  async findByemail (email: string){
+    const admin = this.prisma.admin.findUnique ({where: {email}});
+    if (!admin) throw new NotFoundException(`Admin com email ${email} não encontrado.`);
+    return admin;
+  }
+
   async findOne(id: number) {
     const admin = await this.prisma.admin.findUnique({ where: { id } });
     if (!admin) throw new NotFoundException(`Admin com ID ${id} não encontrado.`);

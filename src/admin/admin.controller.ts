@@ -17,10 +17,16 @@ export class AdminController {
     return this.adminService.findAll();
   }
 
-  @Get(':id')
+  @Get('id/:id')
   findOne(@Param('id') id: string) {
     return this.adminService.findOne(+id);
   }
+
+  @Get('email/:email')
+  findByEmail(@Param('email') email: string) {
+    return this.adminService.findByemail(email);
+  }
+
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
