@@ -7,9 +7,10 @@ import { RegistroModule } from './registro/registro.module';
 import { AdminModule } from './admin/admin.module';
 import { FuncionarioRoupariaModule } from './funcionario_rouparia/funcionario_rouparia.module';
 import { PrismaService } from './prisma/prisma.service';
+import { VinculoModule } from './vinculo/vinculo.module';
 
 @Module({
-  imports: [ColaboradorModule, AreaModule, RegistroModule, AdminModule, FuncionarioRoupariaModule],
+  imports: [ColaboradorModule, AreaModule, RegistroModule, AdminModule, FuncionarioRoupariaModule, VinculoModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

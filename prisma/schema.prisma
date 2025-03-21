@@ -11,15 +11,23 @@ datasource db {
 }
 
 model Colaborador {
-  id        Int        @id @default(autoincrement())
-  numero    Int     @unique
-  nome      String
-  area_id   Int?
-  area      Area?      @relation(fields: [area_id], references: [id], onDelete: SetNull)
-  registros Registro[]
+  id         Int        @id @default(autoincrement())
+  numero     Int     @unique
+  nome       String
+  area_id    Int?
+  vinculo_id Int?
+  vinculo    Vinculo?      @relation(fields: [vinculo_id], references: [id], onDelete: SetNull)
+  area       Area?      @relation(fields: [area_id], references: [id], onDelete: SetNull)
+  registros  Registro[]
 }
 
 model Area {
+  id            Int           @id @default(autoincrement())
+  nome          String
+  colaboradores Colaborador[]
+}
+
+model Vinculo {
   id            Int           @id @default(autoincrement())
   nome          String
   colaboradores Colaborador[]
@@ -29,6 +37,7 @@ model Registro {
   id             Int         @id @default(autoincrement())
   data           DateTime
   status         String
+  quantidade     Int        @default(1)
   colaborador_id Int
   colaborador    Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
 }

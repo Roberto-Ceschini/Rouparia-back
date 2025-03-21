@@ -13,24 +13,44 @@ export class RegistroService {
   ) {}
 
   async create(createRegistroDto: CreateRegistroDto) {
-
     const colaborador = await this.colaborador.findOne(createRegistroDto.colaborador_id);
-    const ultimoRegistro = colaborador.registros[colaborador.registros.length - 1] ?? "Nao ha";
-     //console.log("Ultimo registro cliente\n", ultimoRegistro.data);
-    // console.log("Registrando", createRegistroDto.status);
-    if (ultimoRegistro.status === "retirou" && createRegistroDto.status === "retirou"){
-       return ({message: "error", data: ultimoRegistro.data})
-    }else {
+  
+    // Se for o primeiro registro, permite qualquer ação
+    if (colaborador.registros.length === 0) {
+      return await this.criarRegistro(createRegistroDto);
+    }
+  
+    // Calcula o total entregue e o total já retirado
+    const totalEntregou = colaborador.registros
+      .filter((r) => r.status === "entregou")
+      .reduce((acc, r) => acc + r.quantidade, 0);
+    const totalRetirou = colaborador.registros
+      .filter((r) => r.status === "retirou")
+      .reduce((acc, r) => acc + r.quantidade, 0);
+  
+    // Se o novo registro for de retirada, verifica a regra
+    if (createRegistroDto.status === "retirou") {
+      // Garante que a retirada não ultrapasse a entrega
+      if (totalRetirou - totalEntregou !== 0){
+        if (totalRetirou + createRegistroDto.quantidade > totalEntregou) {
+          return { message: "error", data: { totalEntregou, totalRetirou } };
+        }
+    }
+    }
+  
+    return await this.criarRegistro(createRegistroDto);
+  }
+  
+  private async criarRegistro(createRegistroDto: CreateRegistroDto) {
     const dataAtual = new Date();
-
     const registroComData = {
       ...createRegistroDto,
-      data: dataAtual, 
+      data: dataAtual,
     };
-    const criarRegistro =  await this.prisma.registro.create({ data: registroComData });
-    return ({message: "sucesso", data: null});
+    await this.prisma.registro.create({ data: registroComData });
+    return { message: "sucesso", data: null };
   }
-  }
+  
   async findAll() {
     return await this.prisma.registro.findMany();
   }
