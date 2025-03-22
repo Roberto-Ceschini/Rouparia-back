@@ -32,10 +32,21 @@ export class RegistroService {
     if (createRegistroDto.status === "retirou") {
       // Garante que a retirada não ultrapasse a entrega
       if (totalRetirou - totalEntregou !== 0){
-        if (totalRetirou + createRegistroDto.quantidade > totalEntregou) {
-          return { message: "error", data: { totalEntregou, totalRetirou } };
-        }
+          return { message: "erro retirada", data: { totalEntregou, totalRetirou } };
     }
+    }
+
+    else if (createRegistroDto.status === "entregou") { 
+
+      // Garante que você entregue exatamente a quantidade que foi retirada anteriormente
+      const ultimoRegistroRetirada = colaborador.registros.findLast((r) => r.status === "retirou"); 
+    
+      if (createRegistroDto.quantidade !== ultimoRegistroRetirada?.quantidade) {
+        const quantidadeEntregue = createRegistroDto.quantidade;
+        const ultimaQuantidadeRetirada = ultimoRegistroRetirada?.quantidade;
+    
+        return { message: "erro entrega", data: { quantidadeEntregue, ultimaQuantidadeRetirada } };
+      }
     }
   
     return await this.criarRegistro(createRegistroDto);
