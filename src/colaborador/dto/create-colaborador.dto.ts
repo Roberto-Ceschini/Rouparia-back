@@ -17,4 +17,9 @@ export class CreateColaboradorDto {
     @IsInt()
     @IsOptional()
     area_id?: number;
+
+    @ApiProperty({ example: 1, description: "ID do vinculo do colaborador", required: false })
+    @IsInt()
+    @IsOptional()
+    vinculo_id?: number;
 }
