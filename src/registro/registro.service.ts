@@ -16,10 +16,15 @@ export class RegistroService {
   async create(createRegistroDto: CreateRegistroDto) {
     const colaborador = await this.colaborador.findOne(createRegistroDto.colaborador_id);
     const qtd_pendente = colaborador.qtd_pendente;
-    const pendente = colaborador.pendente;
   
     // Se for o primeiro registro ou for uma entrega extra, permite qualquer ação
     if (colaborador.registros.length === 0 || createRegistroDto.status === 'entrega extra') {
+      if (createRegistroDto.status === 'retirou'){
+        // Marca como pendente e atualiza a quantidade pendente
+      await this.colaborador.update(createRegistroDto.colaborador_id, {
+        qtd_pendente: createRegistroDto.quantidade
+      })
+      }
       return await this.criarRegistro(createRegistroDto);
     }
   
@@ -32,21 +37,23 @@ export class RegistroService {
     // Impede duas entregas consecutivas
     if (ultimoRegistro.status === "entregou" && createRegistroDto.status === "entregou") {
       return {
-        message: "rror - não é possível realizar duas entregas seguidas, verifique se deseja uma entrega extra."
+        message: "error", //não é possível realizar duas entregas seguidas, verifique se deseja uma entrega extra.
+        code: 1
       };
     }    
   
     // Se o novo registro for uma retirada, ele só pode retirar se não houver pendência
     if (createRegistroDto.status === "retirou") {
-      if (pendente) {
+      console.log("QUANTIDADE PENDENTE", qtd_pendente);
+      if (qtd_pendente !== 0) {
         return {
-          message: `Erro - colaborador ${colaborador.nome} possui pendências`,
+          message: "error", //Colaborador possui pendencias
+          code: 2,
           data: { pendecias: qtd_pendente }
         };
       }else{
        // Marca como pendente e atualiza a quantidade pendente
       await this.colaborador.update(createRegistroDto.colaborador_id, {
-        pendente: true,
         qtd_pendente: createRegistroDto.quantidade
       })
     }
@@ -59,7 +66,8 @@ export class RegistroService {
   
       if (!ultimaRetirada || createRegistroDto.quantidade !== ultimaRetirada.quantidade) {
         return {
-          message: "Erro - a entrega deve ser exatamente igual à última retirada pendente.",
+          message: "error", //- a entrega deve ser exatamente igual à última retirada pendente.
+          code: 3,
           data: {
             quantidadeEsperada: ultimaRetirada?.quantidade || 0,
             quantidadeRecebida: createRegistroDto.quantidade
@@ -67,14 +75,11 @@ export class RegistroService {
         };
       }else{
         await this.colaborador.update(createRegistroDto.colaborador_id, {
-          pendente: false,
           qtd_pendente: 0
         })
       }
     }
   
-    // Se todas as regras forem atendidas, cria o registro
-    console.log("COLABORADOR", colaborador)
     return await this.criarRegistro(createRegistroDto);
   }
   

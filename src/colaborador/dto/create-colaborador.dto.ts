@@ -12,13 +12,6 @@ export class CreateColaboradorDto {
     @IsString()
     @IsNotEmpty()
     nome: string;
-
-    
-    @ApiProperty({ example: true, description: "Se o colaborador esta ou nao pendente" })
-    @IsBoolean()
-    @IsOptional()
-    pendente: boolean
-
     
     @ApiProperty({ example: 0, description: "Verifica se o colaborador esta pendendte" })
     @IsInt()
