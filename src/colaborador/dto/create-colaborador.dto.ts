@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString, IsInt, IsNumber } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString, IsInt, IsNumber, IsBoolean } from "class-validator";
 
 export class CreateColaboradorDto {
 
@@ -12,6 +12,18 @@ export class CreateColaboradorDto {
     @IsString()
     @IsNotEmpty()
     nome: string;
+
+    
+    @ApiProperty({ example: true, description: "Se o colaborador esta ou nao pendente" })
+    @IsBoolean()
+    @IsOptional()
+    pendente: boolean
+
+    
+    @ApiProperty({ example: 0, description: "Verifica se o colaborador esta pendendte" })
+    @IsInt()
+    @IsOptional()
+    qtd_pendente: number;
 
     @ApiProperty({ example: 1, description: "ID da área do colaborador", required: false })
     @IsInt()

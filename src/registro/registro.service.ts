@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRegistroDto } from './dto/create-registro.dto';
 import { UpdateRegistroDto } from './dto/update-registro.dto';
 import { ColaboradorService } from 'src/colaborador/colaborador.service';
+import { Colaborador } from '@prisma/client';
 
 @Injectable()
 export class RegistroService {
@@ -14,41 +15,66 @@ export class RegistroService {
 
   async create(createRegistroDto: CreateRegistroDto) {
     const colaborador = await this.colaborador.findOne(createRegistroDto.colaborador_id);
+    const qtd_pendente = colaborador.qtd_pendente;
+    const pendente = colaborador.pendente;
   
-    // Se for o primeiro registro, permite qualquer ação
-    if (colaborador.registros.length === 0) {
+    // Se for o primeiro registro ou for uma entrega extra, permite qualquer ação
+    if (colaborador.registros.length === 0 || createRegistroDto.status === 'entrega extra') {
       return await this.criarRegistro(createRegistroDto);
     }
   
-    // Calcula o total entregue e o total já retirado
-    const totalEntregou = colaborador.registros
-      .filter((r) => r.status === "entregou")
-      .reduce((acc, r) => acc + r.quantidade, 0);
-    const totalRetirou = colaborador.registros
-      .filter((r) => r.status === "retirou")
-      .reduce((acc, r) => acc + r.quantidade, 0);
+    // Filtra os registros para pegar apenas os válidos (retirou ou entregou)
+    const registrosValidos = colaborador.registros.filter(r => r.status === "retirou" || r.status === "entregou");
+
+    // Pegamos o último registro Válido desse colaborador
+    const ultimoRegistro = registrosValidos[registrosValidos.length - 1];
   
-    // Se o novo registro for de retirada, verifica a regra
+    // Impede duas entregas consecutivas
+    if (ultimoRegistro.status === "entregou" && createRegistroDto.status === "entregou") {
+      return {
+        message: "rror - não é possível realizar duas entregas seguidas, verifique se deseja uma entrega extra."
+      };
+    }    
+  
+    // Se o novo registro for uma retirada, ele só pode retirar se não houver pendência
     if (createRegistroDto.status === "retirou") {
-      // Garante que a retirada não ultrapasse a entrega
-      if (totalRetirou - totalEntregou !== 0){
-          return { message: "erro retirada", data: { totalEntregou, totalRetirou } };
+      if (pendente) {
+        return {
+          message: `Erro - colaborador ${colaborador.nome} possui pendências`,
+          data: { pendecias: qtd_pendente }
+        };
+      }else{
+       // Marca como pendente e atualiza a quantidade pendente
+      await this.colaborador.update(createRegistroDto.colaborador_id, {
+        pendente: true,
+        qtd_pendente: createRegistroDto.quantidade
+      })
     }
-    }
-
-    else if (createRegistroDto.status === "entregou") { 
-
-      // Garante que você entregue exatamente a quantidade que foi retirada anteriormente
-      const ultimoRegistroRetirada = colaborador.registros.findLast((r) => r.status === "retirou"); 
-    
-      if (createRegistroDto.quantidade !== ultimoRegistroRetirada?.quantidade) {
-        const quantidadeEntregue = createRegistroDto.quantidade;
-        const ultimaQuantidadeRetirada = ultimoRegistroRetirada?.quantidade;
-    
-        return { message: "erro entrega", data: { quantidadeEntregue, ultimaQuantidadeRetirada } };
+  }
+  
+    // Se o novo registro for uma entrega, ela deve corresponder exatamente à última retirada pendente
+    if (createRegistroDto.status === "entregou") {
+      const retiradas = registrosValidos.filter(r => r.status === "retirou");
+      const ultimaRetirada = retiradas[retiradas.length - 1];
+  
+      if (!ultimaRetirada || createRegistroDto.quantidade !== ultimaRetirada.quantidade) {
+        return {
+          message: "Erro - a entrega deve ser exatamente igual à última retirada pendente.",
+          data: {
+            quantidadeEsperada: ultimaRetirada?.quantidade || 0,
+            quantidadeRecebida: createRegistroDto.quantidade
+          }
+        };
+      }else{
+        await this.colaborador.update(createRegistroDto.colaborador_id, {
+          pendente: false,
+          qtd_pendente: 0
+        })
       }
     }
   
+    // Se todas as regras forem atendidas, cria o registro
+    console.log("COLABORADOR", colaborador)
     return await this.criarRegistro(createRegistroDto);
   }
   
