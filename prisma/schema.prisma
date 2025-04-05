@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,15 +8,15 @@ datasource db {
 }
 
 model Colaborador {
-  id         Int        @id @default(autoincrement())
-  numero     Int     @unique
-  nome       String
-  qtd_pendente Int? @default(0)
-  area_id    Int?
-  vinculo_id Int?
-  vinculo    Vinculo?      @relation(fields: [vinculo_id], references: [id], onDelete: SetNull)
-  area       Area?      @relation(fields: [area_id], references: [id], onDelete: SetNull)
-  registros  Registro[]
+  id           Int        @id @default(autoincrement())
+  numero       Int        @unique
+  nome         String
+  qtd_pendente Int?       @default(0)
+  area_id      Int?
+  vinculo_id   Int?
+  area         Area?      @relation(fields: [area_id], references: [id])
+  vinculo      Vinculo?   @relation(fields: [vinculo_id], references: [id])
+  registros    Registro[]
 }
 
 model Area {
@@ -38,7 +35,7 @@ model Registro {
   id             Int         @id @default(autoincrement())
   data           DateTime
   status         String
-  quantidade     Int        @default(1)
+  quantidade     Int         @default(1)
   colaborador_id Int
   colaborador    Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
 }

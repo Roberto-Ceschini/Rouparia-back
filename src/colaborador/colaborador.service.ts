@@ -64,6 +64,31 @@ export class ColaboradorService {
     return colaborador;
   }
 
+  async findRegistrosPaginados (id: number, page: number, limit: number) {
+    const colaborador = await this.findOne(id);
+    const registros = colaborador.registros;
+    const total = registros.length;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedRegistros = registros.slice(start, end);
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = end < total;
+    const hasPrevPage = start > 0;
+    const nextPage = hasNextPage ? page + 1 : null;
+    const prevPage = hasPrevPage ? page - 1 : null;
+
+    return {
+      total,
+      totalPages,
+      currentPage: page,
+      hasNextPage,
+      hasPrevPage,
+      nextPage,
+      prevPage,
+      registros: paginatedRegistros
+    };
+  }
+
   async update(id: number, updateColaboradorDto: UpdateColaboradorDto) {
     await this.findOne(id); // Verifica se existe
     return await this.prisma.colaborador.update({ where: { id }, data: updateColaboradorDto });
