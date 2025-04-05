@@ -48,21 +48,47 @@ export class ColaboradorService {
   }
 
   async findByNumero(numero: number) {
-    // Tenta encontrar o colaborador pelo nome
-    const colaborador = await this.prisma.colaborador.findUnique({ where: { numero }, 
+    const colaborador = await this.prisma.colaborador.findUnique({
+      where: { numero },
       select: {
         id: true,
         nome: true,
         numero: true,
-
         qtd_pendente: true,
         area: { select: { nome: true } },
         vinculo: { select: { nome: true } },
-        registros: true,
-      } });
-    if (!colaborador) throw new NotFoundException(`Colaborador com numero ${numero} não encontrado.`);
-    return colaborador;
+        registros: {
+          select: {
+            id: true,
+            data: true,
+            status: true,
+            quantidade: true,
+          },
+          orderBy: {
+            data: 'desc', // pega os mais recentes primeiro
+          },
+        },
+      },
+    });
+  
+    if (!colaborador) {
+      throw new NotFoundException(`Colaborador com número ${numero} não encontrado.`);
+    }
+  
+    // Filtra os registros para pegar apenas os válidos
+    const registrosValidos = colaborador.registros.filter(
+      (r) => r.status === "retirou" || r.status === "entregou",
+    );
+  
+    const ultimoRegistro = registrosValidos[0] || null;
+  
+    // Monta a resposta substituindo registros por ultimoRegistro
+    return {
+      ...colaborador,
+      registros: ultimoRegistro,
+    };
   }
+  
 
   async findRegistrosPaginados (id: number, page: number, limit: number) {
     const colaborador = await this.findOne(id);
