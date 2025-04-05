@@ -40,7 +40,17 @@ export class ColaboradorService {
         qtd_pendente: true,
         area: { select: { nome: true } },
         vinculo: { select: { nome: true } },
-        registros: true,
+        registros: {
+          select: {
+            id: true,
+            data: true,
+            status: true,
+            quantidade: true,
+          },
+          orderBy: {
+            data: 'desc', // pega os mais recentes primeiro
+          },
+        },
       }
     });
     if (!colaborador) throw new NotFoundException(`Colaborador com ID ${id} não encontrado.`);
