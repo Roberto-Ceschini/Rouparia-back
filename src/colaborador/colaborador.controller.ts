@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ColaboradorService } from './colaborador.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
@@ -22,6 +22,20 @@ export class ColaboradorController {
   findByNumero(@Param('numero') numero: string) {
     return this.colaboradorService.findByNumero(+numero);
   }
+
+  @Get('registros/:id')
+  findRegistrosPaginados(
+    @Param('id') id: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.colaboradorService.findRegistrosPaginados(
+      +id,
+      +page || 1,
+      +limit || 10,
+    );
+  }
+
 
   @Get('id/:id')
   findOne(@Param('id') id: string) {

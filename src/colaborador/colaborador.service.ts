@@ -81,8 +81,6 @@ export class ColaboradorService {
       total,
       totalPages,
       currentPage: page,
-      hasNextPage,
-      hasPrevPage,
       nextPage,
       prevPage,
       registros: paginatedRegistros
