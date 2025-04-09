@@ -10,38 +10,38 @@ export class RegistroService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly colaborador: ColaboradorService
-  
-  ) {}
+
+  ) { }
 
   async create(createRegistroDto: CreateRegistroDto) {
     const colaborador = await this.colaborador.findOneRegistros(createRegistroDto.colaborador_id);
     const qtd_pendente = colaborador.qtd_pendente;
-  
-    // Se for o primeiro registro ou for uma entrega extra, permite qualquer ação
-    if (colaborador.registros.length === 0 || createRegistroDto.status === 'entrega extra') {
-      if (createRegistroDto.status === 'retirou'){
-        // Marca como pendente e atualiza a quantidade pendente
-      await this.colaborador.update(createRegistroDto.colaborador_id, {
-        qtd_pendente: createRegistroDto.quantidade
-      })
-      }
-      return await this.criarRegistro(createRegistroDto);
-    }
-  
+
     // Filtra os registros para pegar apenas os válidos (retirou ou entregou)
     const registrosValidos = colaborador.registros.filter(r => r.status === "retirou" || r.status === "entregou");
 
     // Pegamos o último registro Válido desse colaborador
     const ultimoRegistro = registrosValidos[registrosValidos.length - 1];
-  
+
+    // Se for o primeiro registro valido ou for uma entrega extra, permite qualquer ação
+    if (ultimoRegistro === undefined || createRegistroDto.status === 'entrega extra') {
+      if (createRegistroDto.status === 'retirou') {
+        // Marca como pendente e atualiza a quantidade pendente
+        await this.colaborador.update(createRegistroDto.colaborador_id, {
+          qtd_pendente: createRegistroDto.quantidade
+        })
+      }
+      return await this.criarRegistro(createRegistroDto);
+    }
+
     // Impede duas entregas consecutivas
     if (ultimoRegistro.status === "entregou" && createRegistroDto.status === "entregou") {
       return {
         message: "error", //não é possível realizar duas entregas seguidas, verifique se deseja uma entrega extra.
         code: 1
       };
-    }    
-  
+    }
+
     // Se o novo registro for uma retirada, ele só pode retirar se não houver pendência
     if (createRegistroDto.status === "retirou") {
       console.log("QUANTIDADE PENDENTE", qtd_pendente);
@@ -51,19 +51,19 @@ export class RegistroService {
           code: 2,
           data: { pendecias: qtd_pendente }
         };
-      }else{
-       // Marca como pendente e atualiza a quantidade pendente
-      await this.colaborador.update(createRegistroDto.colaborador_id, {
-        qtd_pendente: createRegistroDto.quantidade
-      })
+      } else {
+        // Marca como pendente e atualiza a quantidade pendente
+        await this.colaborador.update(createRegistroDto.colaborador_id, {
+          qtd_pendente: createRegistroDto.quantidade
+        })
+      }
     }
-  }
-  
+
     // Se o novo registro for uma entrega, ela deve corresponder exatamente à última retirada pendente
     if (createRegistroDto.status === "entregou") {
       const retiradas = registrosValidos.filter(r => r.status === "retirou");
       const ultimaRetirada = retiradas[retiradas.length - 1];
-  
+
       if (!ultimaRetirada || createRegistroDto.quantidade !== ultimaRetirada.quantidade) {
         return {
           message: "error", //- a entrega deve ser exatamente igual à última retirada pendente.
@@ -73,16 +73,16 @@ export class RegistroService {
             quantidadeRecebida: createRegistroDto.quantidade
           }
         };
-      }else{
+      } else {
         await this.colaborador.update(createRegistroDto.colaborador_id, {
           qtd_pendente: 0
         })
       }
     }
-  
+
     return await this.criarRegistro(createRegistroDto);
   }
-  
+
   private async criarRegistro(createRegistroDto: CreateRegistroDto) {
     const dataAtual = new Date();
     const registroComData = {
@@ -92,7 +92,7 @@ export class RegistroService {
     await this.prisma.registro.create({ data: registroComData });
     return { message: "sucesso", data: null };
   }
-  
+
   async findAll() {
     return await this.prisma.registro.findMany();
   }
@@ -119,5 +119,5 @@ export class RegistroService {
     await this.prisma.registro.deleteMany({});
     return { message: 'Todos os registros foram excluídos com sucesso.' };
   }
-  
+
 }
