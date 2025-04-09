@@ -14,7 +14,7 @@ export class RegistroService {
   ) {}
 
   async create(createRegistroDto: CreateRegistroDto) {
-    const colaborador = await this.colaborador.findOne(createRegistroDto.colaborador_id);
+    const colaborador = await this.colaborador.findOneRegistros(createRegistroDto.colaborador_id);
     const qtd_pendente = colaborador.qtd_pendente;
   
     // Se for o primeiro registro ou for uma entrega extra, permite qualquer ação

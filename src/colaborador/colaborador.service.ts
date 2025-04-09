@@ -57,6 +57,26 @@ export class ColaboradorService {
     return colaborador;
   }
 
+  //FindoOne usado no service de registros
+  async findOneRegistros(id: number) {
+    const colaborador = await this.prisma.colaborador.findUnique({
+      where: { id },
+      select: {
+        qtd_pendente: true,
+        registros: {
+          select: {
+            id: true,
+            data: true,
+            status: true,
+            quantidade: true,
+          },
+        },
+      }
+    });
+    if (!colaborador) throw new NotFoundException(`Colaborador com ID ${id} não encontrado.`);
+    return colaborador;
+  }
+
   async findByNumero(numero: number) {
     const colaborador = await this.prisma.colaborador.findUnique({
       where: { numero },
