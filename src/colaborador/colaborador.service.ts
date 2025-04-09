@@ -118,6 +118,10 @@ export class ColaboradorService {
       registros: ultimoRegistro,
     };
   }
+
+  async findPendentes (){
+    //Retorna todos os colaboradores pendentes (paginados)
+  }
   
 
   async findRegistrosPaginados (id: number, page: number, limit: number) {
