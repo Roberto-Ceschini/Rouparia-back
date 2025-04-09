@@ -24,9 +24,13 @@ export class ColaboradorService {
       nome: true,
       numero: true,
       qtd_pendente: true,
-      area: { select: { nome: true } },
-      vinculo: { select: { nome: true } },
-      registros: true,
+      registros: {
+        select: {
+          data: true,
+          status: true,
+          quantidade: true
+        }
+      }
     } });
   }
 
@@ -52,6 +56,7 @@ export class ColaboradorService {
           },
         },
       }
+      
     });
     if (!colaborador) throw new NotFoundException(`Colaborador com ID ${id} não encontrado.`);
     return colaborador;
@@ -119,9 +124,43 @@ export class ColaboradorService {
     };
   }
 
-  async findPendentes (){
-    //Retorna todos os colaboradores pendentes (paginados)
+  async findAllPendentes (){
+    const colaboradores = await this.findAll();
+    const colaboradoresPendentes = colaboradores.filter (colaborador => colaborador.qtd_pendente !== 0);
+
+    return colaboradoresPendentes;
   }
+
+  async findAllPendentesPaginados (page: number, limit: number){
+    const colaboradoresPendentes = await this.findAllPendentes();
+
+    let colaboradoresFormatados = colaboradoresPendentes.map (c => {
+      
+    })
+
+    const total = colaboradoresPendentes.length
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedColaboradores = colaboradoresPendentes.slice(start, end);
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = end < total;
+    const hasPrevPage = start > 0;
+    const nextPage = hasNextPage ? page + 1 : null;
+    const prevPage = hasPrevPage ? page - 1 : null;
+
+    return {
+      total,
+      totalPages,
+      currentPage: page,
+      nextPage,
+      prevPage,
+      colaboradores: paginatedColaboradores
+    };
+  }
+
+  // async gerarExcel (){
+  //   const 
+  // }
   
 
   async findRegistrosPaginados (id: number, page: number, limit: number) {

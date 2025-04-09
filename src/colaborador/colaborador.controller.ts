@@ -36,6 +36,17 @@ export class ColaboradorController {
     );
   }
 
+  @Get('pendentes')
+  findAllPendentesPaginados(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.colaboradorService.findAllPendentesPaginados(
+      +page || 1,
+      +limit || 10,
+    );
+  }
+
 
   @Get('id/:id')
   findOne(@Param('id') id: string) {
