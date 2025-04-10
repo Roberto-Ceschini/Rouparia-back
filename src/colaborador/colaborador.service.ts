@@ -3,8 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 import { AreaService } from 'src/area/area.service';
-import ExcelJS from 'exceljs';
-import { Colaborador } from './entities/colaborador.entity';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ColaboradorService {
@@ -180,35 +179,89 @@ export class ColaboradorService {
   
     // Define as colunas conforme a ordem requerida
     worksheet.columns = [
-      { header: 'Numero', key: 'numero', width: 10 },
+      { header: 'Número', key: 'numero', width: 10 },
       { header: 'Nome', key: 'nome', width: 30 },
-      { header: 'Area', key: 'area', width: 15 },
-      { header: 'Vinculo', key: 'vinculo', width: 15 },
+      { header: 'Área', key: 'area', width: 15 },
+      { header: 'Vínculo', key: 'vinculo', width: 15 },
       { header: 'Status', key: 'status', width: 15 },
       { header: 'Quantidade', key: 'quantidade', width: 12 },
       { header: 'Data', key: 'data', width: 20 }
     ];
+
+    // ---- ESTILIZAÇÃO DO CABEÇALHO ----
+  // 1. Pega a primeira linha (cabeçalho)
+  const headerRow = worksheet.getRow(1);
+
+  // 2. Aplica negrito e centralização
+  headerRow.font = {
+    bold: true,
+    color: { argb: '000000' } // Preto
+  };
+
+  headerRow.alignment = {
+    vertical: 'middle',
+    horizontal: 'center'
+  };
+
+  // 3. Pinta o fundo do cabeçalho (opcional)
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: '99CABD' } // Cinza claro
+  };
   
     // Adiciona uma linha para cada colaborador
     colaboradoresPendentes.forEach(colaborador => {
       // Obtém o registro se existir
       const registro = colaborador.registros[0];
-  
+      const dataFormatada0 = registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[0] : ''
+      const dataFormatada1 = registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[1] : ''
+      const dataFormatada = dataFormatada0 + dataFormatada1;
+
+
       worksheet.addRow({
-        numero: colaborador.numero,
+        numero: String(colaborador.numero).padStart(3, '0'),
         nome: colaborador.nome,
         area: colaborador.area?.nome || '',       // usando optional chaining para evitar erros
         vinculo: colaborador.vinculo?.nome || '',
         status: registro?.status || '',
         quantidade: registro ? registro.quantidade : 0,
-        data: registro ? new Date(registro.data) : ''  // converte para objeto Date se necessário
+        data: dataFormatada 
       });
     });
+
+    // ---- ESTILIZAÇÃO DAS CÉLULAS DE DADOS ----
+  // 1. Centraliza todas as células (exceto nome, se preferir)
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber > 1) { // Pula o cabeçalho
+      row.alignment = {
+        vertical: 'middle',
+        horizontal: 'center'
+      };
+
+      if (rowNumber%2 === 0){
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'F0F7F5' } // Quase branco com um toque de verde
+        };
+      }
+
+      else{
+        row.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'E5F0ED' } // Um degrau acima em tom
+        };
+      }
+    }
+  });
   
-    // Define o caminho e gera o arquivo Excel
-    const filePath = './colaboradores_pendentes.xlsx';
-    await workbook.xlsx.writeFile(filePath);
-    console.log(`Arquivo gerado com sucesso: ${filePath}`);
+      // 5. Gerar buffer do Excel
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // 6. Retornar o buffer (convertido para Uint8Array)
+    return new Uint8Array(buffer);
   }
   
 

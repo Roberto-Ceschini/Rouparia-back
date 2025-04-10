@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, StreamableFile, Header } from '@nestjs/common';
+import { Response } from 'express';
 import { ColaboradorService } from './colaborador.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
@@ -17,9 +18,12 @@ export class ColaboradorController {
     return this.colaboradorService.findAll();
   }
 
-  @Get('excel')
-  gerarExcel(){
-    return this.colaboradorService.gerarExcel();
+  @Get('gerarExcel')
+  @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  @Header('Content-Disposition', 'attachment; filename=colaboradoresPendentes.xlsx')
+  async gerarExcel() {
+    const fileBuffer = await this.colaboradorService.gerarExcel();
+    return new StreamableFile(fileBuffer);
   }
 
   
