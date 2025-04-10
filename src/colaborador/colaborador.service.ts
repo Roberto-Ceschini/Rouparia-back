@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 import { AreaService } from 'src/area/area.service';
+import ExcelJS from 'exceljs';
 import { Colaborador } from './entities/colaborador.entity';
 
 @Injectable()
@@ -24,6 +25,8 @@ export class ColaboradorService {
       nome: true,
       numero: true,
       qtd_pendente: true,
+      area: { select: { nome: true } },
+      vinculo: { select: { nome: true } },
       registros: {
         select: {
           data: true,
@@ -132,11 +135,13 @@ export class ColaboradorService {
   }
 
   async findAllPendentesPaginados (page: number, limit: number){
-    const colaboradoresPendentes = await this.findAllPendentes();
-
-    let colaboradoresFormatados = colaboradoresPendentes.map (c => {
-      
-    })
+    const colaboradoresPendentes = (await this.findAllPendentes()).map(r=>{
+      const ultimaRetirada = r.registros.findLast(r=>r.status === 'retirou');
+      return {
+        ...r,
+        registros: ultimaRetirada ? [ultimaRetirada] : []
+      };
+    });
 
     const total = colaboradoresPendentes.length
     const start = (page - 1) * limit;
@@ -158,9 +163,53 @@ export class ColaboradorService {
     };
   }
 
-  // async gerarExcel (){
-  //   const 
-  // }
+
+  async gerarExcel() {
+    // Recupera os colaboradores pendentes e obtém apenas o último registro "retirou"
+    const colaboradoresPendentes = (await this.findAllPendentes()).map(colaborador => {
+      const ultimaRetirada = colaborador.registros.findLast(reg => reg.status === 'retirou');
+      return {
+        ...colaborador,
+        registros: ultimaRetirada ? [ultimaRetirada] : []
+      };
+    });
+  
+    // Cria um novo workbook e uma worksheet chamada "Colaboradores Pendentes"
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Colaboradores Pendentes');
+  
+    // Define as colunas conforme a ordem requerida
+    worksheet.columns = [
+      { header: 'Numero', key: 'numero', width: 10 },
+      { header: 'Nome', key: 'nome', width: 30 },
+      { header: 'Area', key: 'area', width: 15 },
+      { header: 'Vinculo', key: 'vinculo', width: 15 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Quantidade', key: 'quantidade', width: 12 },
+      { header: 'Data', key: 'data', width: 20 }
+    ];
+  
+    // Adiciona uma linha para cada colaborador
+    colaboradoresPendentes.forEach(colaborador => {
+      // Obtém o registro se existir
+      const registro = colaborador.registros[0];
+  
+      worksheet.addRow({
+        numero: colaborador.numero,
+        nome: colaborador.nome,
+        area: colaborador.area?.nome || '',       // usando optional chaining para evitar erros
+        vinculo: colaborador.vinculo?.nome || '',
+        status: registro?.status || '',
+        quantidade: registro ? registro.quantidade : 0,
+        data: registro ? new Date(registro.data) : ''  // converte para objeto Date se necessário
+      });
+    });
+  
+    // Define o caminho e gera o arquivo Excel
+    const filePath = './colaboradores_pendentes.xlsx';
+    await workbook.xlsx.writeFile(filePath);
+    console.log(`Arquivo gerado com sucesso: ${filePath}`);
+  }
   
 
   async findRegistrosPaginados (id: number, page: number, limit: number) {

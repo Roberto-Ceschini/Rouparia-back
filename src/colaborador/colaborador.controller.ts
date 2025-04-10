@@ -17,6 +17,11 @@ export class ColaboradorController {
     return this.colaboradorService.findAll();
   }
 
+  @Get('excel')
+  gerarExcel(){
+    return this.colaboradorService.gerarExcel();
+  }
+
   
   @Get('numero/:numero')
   findByNumero(@Param('numero') numero: string) {
