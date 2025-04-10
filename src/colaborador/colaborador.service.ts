@@ -3,8 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 import { AreaService } from 'src/area/area.service';
-import ExcelJS from 'exceljs';
-import { Colaborador } from './entities/colaborador.entity';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class ColaboradorService {
@@ -186,7 +185,8 @@ export class ColaboradorService {
       { header: 'Vinculo', key: 'vinculo', width: 15 },
       { header: 'Status', key: 'status', width: 15 },
       { header: 'Quantidade', key: 'quantidade', width: 12 },
-      { header: 'Data', key: 'data', width: 20 }
+      { header: 'Data', key: 'data', width: 20 },
+      { header: 'Horário', key: 'horario', width: 30 }
     ];
   
     // Adiciona uma linha para cada colaborador
@@ -201,14 +201,16 @@ export class ColaboradorService {
         vinculo: colaborador.vinculo?.nome || '',
         status: registro?.status || '',
         quantidade: registro ? registro.quantidade : 0,
-        data: registro ? new Date(registro.data) : ''  // converte para objeto Date se necessário
+        data: registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[0] : '',  // converte para o fuso Rj
+        horario: registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[1].trim() : ''
       });
     });
   
-    // Define o caminho e gera o arquivo Excel
-    const filePath = './colaboradores_pendentes.xlsx';
-    await workbook.xlsx.writeFile(filePath);
-    console.log(`Arquivo gerado com sucesso: ${filePath}`);
+      // 5. Gerar buffer do Excel
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    // 6. Retornar o buffer (convertido para Uint8Array)
+    return new Uint8Array(buffer);
   }
   
 
