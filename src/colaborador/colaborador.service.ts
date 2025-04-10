@@ -185,15 +185,18 @@ export class ColaboradorService {
       { header: 'Vinculo', key: 'vinculo', width: 15 },
       { header: 'Status', key: 'status', width: 15 },
       { header: 'Quantidade', key: 'quantidade', width: 12 },
-      { header: 'Data', key: 'data', width: 20 },
-      { header: 'Horário', key: 'horario', width: 30 }
+      { header: 'Data', key: 'data', width: 20 }
     ];
   
     // Adiciona uma linha para cada colaborador
     colaboradoresPendentes.forEach(colaborador => {
       // Obtém o registro se existir
       const registro = colaborador.registros[0];
-  
+      const dataFormatada0 = registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[0] : ''
+      const dataFormatada1 = registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[1] : ''
+      const dataFormatada = dataFormatada0 + dataFormatada1;
+
+
       worksheet.addRow({
         numero: colaborador.numero,
         nome: colaborador.nome,
@@ -201,8 +204,7 @@ export class ColaboradorService {
         vinculo: colaborador.vinculo?.nome || '',
         status: registro?.status || '',
         quantidade: registro ? registro.quantidade : 0,
-        data: registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[0] : '',  // converte para o fuso Rj
-        horario: registro ? new Date(registro.data).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }).split(',')[1].trim() : ''
+        data: dataFormatada 
       });
     });
   
