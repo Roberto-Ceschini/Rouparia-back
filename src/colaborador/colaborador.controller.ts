@@ -20,7 +20,7 @@ export class ColaboradorController {
 
   @Get('gerarExcel')
   @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-  @Header('Content-Disposition', 'attachment; filename=colaboradoresPendentes.xlsx')
+  @Header('Content-Disposition', 'attachment; filename=colaboradores_pendentes.xlsx')
   async gerarExcel() {
     const fileBuffer = await this.colaboradorService.gerarExcel();
     return new StreamableFile(fileBuffer);
