@@ -1,21 +1,32 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 import { AreaService } from 'src/area/area.service';
 import * as ExcelJS from 'exceljs';
+import { VinculoService } from 'src/vinculo/vinculo.service';
 
 @Injectable()
 export class ColaboradorService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly area: AreaService
+    private readonly area: AreaService,
+    private readonly vinculo: VinculoService,
   ) { }
 
   async create(createColaboradorDto: CreateColaboradorDto) {
-    if (createColaboradorDto.area_id) await this.area.findOne(createColaboradorDto.area_id); // verifica se area passada existe
-    const colaborador = await this.prisma.colaborador.create({ data: createColaboradorDto });
-    return colaborador;
+    try {
+      if (createColaboradorDto.area_id) await this.area.findOne(createColaboradorDto.area_id); // verifica se area passada existe
+      if (createColaboradorDto.vinculo_id) await this.vinculo.findOne(createColaboradorDto.vinculo_id); // verifica se area passada existe
+
+      const colaborador = await this.prisma.colaborador.create({ data: createColaboradorDto });
+      return colaborador;
+
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(`Colaborador com o número ${createColaboradorDto.numero} já cadastrado`);
+      }
+    }
   }
 
   async findAll() {
@@ -302,5 +313,14 @@ export class ColaboradorService {
     const colaborador = await this.findByNumero(numero);
     if (colaborador) await this.remove(colaborador.id);
     return `colaborador de numero ${numero} removido com sucesso!`
+  }
+
+  async removeAll(){
+    try{
+    await this.prisma.colaborador.deleteMany();
+    return 'Colaboradores removidos com sucesso!'
+    }catch(error){
+      throw new HttpException("Erro ao remover colaboradores", 500)
+    }
   }
 }

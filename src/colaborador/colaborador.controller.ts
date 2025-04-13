@@ -67,6 +67,11 @@ export class ColaboradorController {
     return this.colaboradorService.update(+id, updateColaboradorDto);
   }
 
+  @Delete()
+  removeAll(){
+    return this.colaboradorService.removeAll();
+  }
+
   @Delete('id/:id')
   remove(@Param('id') id: string) {
     return this.colaboradorService.remove(+id);

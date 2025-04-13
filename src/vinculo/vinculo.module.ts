@@ -6,5 +6,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Module({
   controllers: [VinculoController],
   providers: [VinculoService, PrismaService],
+  exports: [VinculoService]
 })
 export class VinculoModule {}
