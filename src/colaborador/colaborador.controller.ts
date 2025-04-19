@@ -1,13 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, StreamableFile, Header } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, StreamableFile, Header, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { ColaboradorService } from './colaborador.service';
 import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
+import { jwtAuthGuard } from 'src/auth/guards/jwt.authGuard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('colaborador')
 export class ColaboradorController {
   constructor(private readonly colaboradorService: ColaboradorService) {}
 
+  @UseGuards(jwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @Post()
   create(@Body() createColaboradorDto: CreateColaboradorDto) {
     return this.colaboradorService.create(createColaboradorDto);
