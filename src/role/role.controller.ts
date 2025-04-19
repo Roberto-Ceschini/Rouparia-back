@@ -2,8 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { AuthJwtRole } from 'src/auth/decorators/auth.decorator';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('role')
+@AuthJwtRole()
+@Roles(Role.Admin)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 

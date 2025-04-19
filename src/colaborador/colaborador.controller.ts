@@ -8,19 +8,21 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AuthJwtRole } from 'src/auth/decorators/auth.decorator';
 
 @Controller('colaborador')
+@AuthJwtRole()
 export class ColaboradorController {
   constructor(private readonly colaboradorService: ColaboradorService) { }
 
-  @Auth(Role.Admin)
   @Post()
+  @Roles(Role.Admin)
   create(@Body() createColaboradorDto: CreateColaboradorDto) {
     return this.colaboradorService.create(createColaboradorDto);
   }
 
   @Get()
+  @Roles(Role.Admin, Role.User)
   findAll() {
     return this.colaboradorService.findAll();
   }
@@ -28,6 +30,7 @@ export class ColaboradorController {
   @Get('gerarExcel')
   @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   @Header('Content-Disposition', 'attachment; filename=colaboradores_pendentes.xlsx')
+  @Roles(Role.Admin, Role.User)
   async gerarExcel() {
     const fileBuffer = await this.colaboradorService.gerarExcel();
     return new StreamableFile(fileBuffer);
@@ -35,11 +38,13 @@ export class ColaboradorController {
 
 
   @Get('numero/:numero')
+  @Roles(Role.Admin, Role.User)
   findByNumero(@Param('numero') numero: string) {
     return this.colaboradorService.findByNumero(+numero);
   }
 
   @Get('registros/:id')
+  @Roles(Role.Admin, Role.User)
   findRegistrosPaginados(
     @Param('id') id: string,
     @Query('page') page: string,
@@ -53,6 +58,7 @@ export class ColaboradorController {
   }
 
   @Get('pendentes')
+  @Roles(Role.Admin, Role.User)
   findAllPendentesPaginados(
     @Query('page') page: string,
     @Query('limit') limit: string,
@@ -65,26 +71,31 @@ export class ColaboradorController {
 
 
   @Get('id/:id')
+  @Roles(Role.Admin, Role.User)
   findOne(@Param('id') id: string) {
     return this.colaboradorService.findOne(+id);
   }
 
   @Patch(':id')
+  @Roles(Role.Admin)
   update(@Param('id') id: string, @Body() updateColaboradorDto: UpdateColaboradorDto) {
     return this.colaboradorService.update(+id, updateColaboradorDto);
   }
 
   @Delete()
+  @Roles(Role.Admin)
   removeAll() {
     return this.colaboradorService.removeAll();
   }
 
   @Delete('id/:id')
+  @Roles(Role.Admin)
   remove(@Param('id') id: string) {
     return this.colaboradorService.remove(+id);
   }
 
   @Delete('numero/:numero')
+  @Roles(Role.Admin)
   removeByNumero(@Param('numero') numero: string) {
     return this.colaboradorService.removeByNumero(+numero);
   }
