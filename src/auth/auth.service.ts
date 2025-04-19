@@ -13,16 +13,21 @@ export class AuthService {
 ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
+    console.log("Validando")
     const user = await this.userService.findByUsername(username);
     if (user && (await bcrypt.compare(pass, user.password))) {
       const { password, ...result } = user;
+      console.log("Resultado validacao", result);
       return result;
     }
     return null;
   }
 
   async login (user: any){
-    const payload = ({id: user.id, username: user.username});
+    console.log("Logando")
+    console.log("userROLAS", user.roles[0].role)
+    const payload = ({id: user.id, username: user.username, roles: user.roles[0].role});
+    console.log("PAYLOAD GERADO", payload)
     const jwtToken = this.jwtService.sign(payload, {
         secret: process.env.JWT_SECRET,
         expiresIn: '15d'

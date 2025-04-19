@@ -24,18 +24,27 @@ export class UserService {
   }
   
   async findAll() {
-    return await this.prisma.user.findMany();
+    return await this.prisma.user.findMany({
+      include: {
+        roles: true
+      }
+    });
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({ where: { id }, include:{
+      roles: true
+    } });
     if (!user) throw new NotFoundException(`User com ID ${id} não encontrado.`);
     return user;
   }
 
   
   async findByUsername(username: string) {
-    const user = await this.prisma.user.findUnique({ where: { username } });
+    console.log("Procurando usuario")
+    const user = await this.prisma.user.findUnique({ where: { username }, include: {
+      roles: true
+    } });
     if (!user) throw new NotFoundException(`Usuário ${username} não encontrado.`);
     return user;
   }

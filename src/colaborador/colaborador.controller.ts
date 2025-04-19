@@ -5,13 +5,17 @@ import { CreateColaboradorDto } from './dto/create-colaborador.dto';
 import { UpdateColaboradorDto } from './dto/update-colaborador.dto';
 import { jwtAuthGuard } from 'src/auth/guards/jwt.authGuard';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('colaborador')
 export class ColaboradorController {
   constructor(private readonly colaboradorService: ColaboradorService) {}
 
-  @UseGuards(jwtAuthGuard)
+  @UseGuards(jwtAuthGuard, RolesGuard)
   @ApiBearerAuth('access-token')
+  @Roles(Role.Admin)
   @Post()
   create(@Body() createColaboradorDto: CreateColaboradorDto) {
     return this.colaboradorService.create(createColaboradorDto);
