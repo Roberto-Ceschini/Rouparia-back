@@ -8,14 +8,13 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/roles/roles.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 
 @Controller('colaborador')
 export class ColaboradorController {
-  constructor(private readonly colaboradorService: ColaboradorService) {}
+  constructor(private readonly colaboradorService: ColaboradorService) { }
 
-  @UseGuards(jwtAuthGuard, RolesGuard)
-  @ApiBearerAuth('access-token')
-  @Roles(Role.Admin)
+  @Auth(Role.Admin)
   @Post()
   create(@Body() createColaboradorDto: CreateColaboradorDto) {
     return this.colaboradorService.create(createColaboradorDto);
@@ -34,7 +33,7 @@ export class ColaboradorController {
     return new StreamableFile(fileBuffer);
   }
 
-  
+
   @Get('numero/:numero')
   findByNumero(@Param('numero') numero: string) {
     return this.colaboradorService.findByNumero(+numero);
@@ -76,7 +75,7 @@ export class ColaboradorController {
   }
 
   @Delete()
-  removeAll(){
+  removeAll() {
     return this.colaboradorService.removeAll();
   }
 
