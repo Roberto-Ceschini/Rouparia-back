@@ -47,6 +47,23 @@ export class ColaboradorService {
     } });
   }
 
+  async findAllOrdenados() {
+    return await this.prisma.colaborador.findMany({
+      select: {
+        id: true,
+        nome: true,
+        numero: true,
+        qtd_pendente: true,
+        area: { select: { nome: true } },
+        vinculo: { select: { nome: true } },
+      },
+      orderBy: {
+        numero: 'asc',
+      },
+    });
+  }
+  
+
   async findOne(id: number) {
     const colaborador = await this.prisma.colaborador.findUnique({
       where: { id },

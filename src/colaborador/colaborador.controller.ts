@@ -27,6 +27,12 @@ export class ColaboradorController {
     return this.colaboradorService.findAll();
   }
 
+  @Get('/ordenados')
+  @Roles(Role.Admin, Role.User)
+  findAllOrdenados() {
+    return this.colaboradorService.findAllOrdenados();
+  }
+
   @Get('gerarExcel')
   @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   @Header('Content-Disposition', 'attachment; filename=colaboradores_pendentes.xlsx')
