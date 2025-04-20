@@ -40,16 +40,15 @@ model Registro {
   colaborador    Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
 }
 
-model Admin {
+model User {
   id       Int    @id @default(autoincrement())
-  nome     String
-  email    String @unique
+  username String @unique
   password String
+  roles    Role[] @relation("UserRoles")
 }
 
-model Funcionario_rouparia {
-  id       Int    @id @default(autoincrement())
-  nome     String
-  email    String @unique
-  password String
+model Role {
+  id    Int    @id @default(autoincrement())
+  role  String @unique
+  users User[] @relation("UserRoles")
 }

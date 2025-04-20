@@ -2,8 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { VinculoService } from './vinculo.service';
 import { CreateVinculoDto } from './dto/create-vinculo.dto';
 import { UpdateVinculoDto } from './dto/update-vinculo.dto';
+import { AuthJwtRole } from 'src/auth/decorators/auth.decorator';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('vinculo')
+@AuthJwtRole()
+@Roles(Role.Admin)
 export class VinculoController {
   constructor(private readonly vinculoService: VinculoService) {}
 

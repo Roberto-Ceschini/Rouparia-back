@@ -2,8 +2,13 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AreaService } from './area.service';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
+import { AuthJwtRole } from 'src/auth/decorators/auth.decorator';
+import { Roles } from 'src/auth/roles/roles.decorator';
+import { Role } from 'src/enums/role.enum';
 
 @Controller('area')
+@AuthJwtRole()
+@Roles(Role.Admin)
 export class AreaController {
   constructor(private readonly areaService: AreaService) {}
 
