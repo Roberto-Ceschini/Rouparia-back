@@ -41,7 +41,6 @@ export class UserService {
 
   
   async findByUsername(username: string) {
-    console.log("Procurando usuario")
     const user = await this.prisma.user.findUnique({ where: { username }, include: {
       roles: true
     } });

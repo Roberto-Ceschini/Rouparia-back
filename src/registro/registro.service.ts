@@ -44,7 +44,6 @@ export class RegistroService {
 
     // Se o novo registro for uma retirada, ele só pode retirar se não houver pendência
     if (createRegistroDto.status === "retirou") {
-      console.log("QUANTIDADE PENDENTE", qtd_pendente);
       if (qtd_pendente !== 0) {
         return {
           message: "error", //Colaborador possui pendencias

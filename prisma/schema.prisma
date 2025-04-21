@@ -27,7 +27,7 @@ model Area {
 
 model Vinculo {
   id            Int           @id @default(autoincrement())
-  nome          String       @unique
+  nome          String        @unique
   colaboradores Colaborador[]
 }
 

@@ -21,8 +21,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
   async validate(payload: any): Promise<any> {
-    console.log("EXTRAINDO JWT")
-    console.log("PAYLOAD", payload);
    return {id: payload.id, username:payload.username, roles: payload.roles};
   }
 }
