@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,17 +8,26 @@ datasource db {
 }
 
 model Colaborador {
-  id        Int        @id @default(autoincrement())
-  numero    String     @unique
-  nome      String
-  area_id   Int?
-  area      Area?      @relation(fields: [area_id], references: [id], onDelete: SetNull)
-  registros Registro[]
+  id           Int        @id @default(autoincrement())
+  numero       Int        @unique
+  nome         String
+  qtd_pendente Int?       @default(0)
+  area_id      Int?
+  vinculo_id   Int?
+  area         Area?      @relation(fields: [area_id], references: [id])
+  vinculo      Vinculo?   @relation(fields: [vinculo_id], references: [id])
+  registros    Registro[]
 }
 
 model Area {
   id            Int           @id @default(autoincrement())
-  nome          String
+  nome          String        @unique
+  colaboradores Colaborador[]
+}
+
+model Vinculo {
+  id            Int           @id @default(autoincrement())
+  nome          String        @unique
   colaboradores Colaborador[]
 }
 
@@ -29,20 +35,20 @@ model Registro {
   id             Int         @id @default(autoincrement())
   data           DateTime
   status         String
+  quantidade     Int         @default(1)
   colaborador_id Int
   colaborador    Colaborador @relation(fields: [colaborador_id], references: [id], onDelete: Cascade)
 }
 
-model Admin {
+model User {
   id       Int    @id @default(autoincrement())
-  nome     String
-  email    String @unique
+  username String @unique
   password String
+  roles    Role[] @relation("UserRoles")
 }
 
-model Funcionario_rouparia {
-  id       Int    @id @default(autoincrement())
-  nome     String
-  email    String @unique
-  password String
+model Role {
+  id    Int    @id @default(autoincrement())
+  role  String @unique
+  users User[] @relation("UserRoles")
 }
